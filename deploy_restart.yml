@@ -1,0 +1,28 @@
+---
+- hosts: web_containers
+  tasks:
+    - name: Copy WAR file
+      copy:
+        src: /path/to/war/file/app.war
+        dest: /Documents/project/app.war
+        mode: 0644
+
+    - name: Stop Tomcat
+      become: yes
+      systemd:
+        name: tomcat
+        state: stopped
+
+    - name: Deploy WAR
+      copy:
+        src: /path/on/remote/server/app.war
+        dest: /opt/tomcat/webapps/app.war
+        remote_src: yes
+      notify: Restart Tomcat
+
+  handlers:
+    - name: Restart Tomcat
+      become: yes
+      systemd:
+        name: tomcat
+        state: started
